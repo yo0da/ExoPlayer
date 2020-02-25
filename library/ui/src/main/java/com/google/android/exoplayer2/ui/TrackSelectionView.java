@@ -72,6 +72,7 @@ public class TrackSelectionView extends LinearLayout {
   private TrackGroupArray trackGroups;
   private boolean isDisabled;
   @Nullable private TrackSelectionListener listener;
+  private ArrayList<String> mNamesList;
 
   /** Creates a track selection view. */
   public TrackSelectionView(Context context) {
@@ -216,6 +217,26 @@ public class TrackSelectionView extends LinearLayout {
     updateViews();
   }
 
+  public void init(
+      MappedTrackInfo mappedTrackInfo,
+      int rendererIndex,
+      boolean isDisabled,
+      List<SelectionOverride> overrides,
+      @Nullable TrackSelectionListener listener,
+      ArrayList<String> namesList) {
+    this.mappedTrackInfo = mappedTrackInfo;
+    this.rendererIndex = rendererIndex;
+    this.isDisabled = isDisabled;
+    this.listener = listener;
+    this.mNamesList = namesList;
+    int maxOverrides = allowMultipleOverrides ? overrides.size() : Math.min(overrides.size(), 1);
+    for (int i = 0; i < maxOverrides; i++) {
+      SelectionOverride override = overrides.get(i);
+      this.overrides.put(override.groupIndex, override);
+    }
+    updateViews();
+  }
+
   /** Returns whether the renderer is disabled. */
   public boolean getIsDisabled() {
     return isDisabled;
@@ -270,7 +291,11 @@ public class TrackSelectionView extends LinearLayout {
         CheckedTextView trackView =
             (CheckedTextView) inflater.inflate(trackViewLayoutId, this, false);
         trackView.setBackgroundResource(selectableItemBackgroundResourceId);
-        trackView.setText(trackNameProvider.getTrackName(group.getFormat(trackIndex)));
+        if(mNamesList != null && !mNamesList.isEmpty()) {
+          trackView.setText(mNamesList.get(trackIndex));
+        } else {
+          trackView.setText(trackNameProvider.getTrackName(group.getFormat(trackIndex)));
+        }
         if (mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
             == RendererCapabilities.FORMAT_HANDLED) {
           trackView.setFocusable(true);

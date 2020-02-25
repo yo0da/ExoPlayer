@@ -50,7 +50,6 @@ public final class TrackSelectionDialog extends DialogFragment {
   private final ArrayList<Integer> tabTrackTypes;
 
   private int titleId;
-  private ArrayList<String> mNamesList;
   private DialogInterface.OnClickListener onClickListener;
   private DialogInterface.OnDismissListener onDismissListener;
 
@@ -131,6 +130,7 @@ public final class TrackSelectionDialog extends DialogFragment {
         /* initialParameters = */ parameters,
         /* allowAdaptiveSelections =*/ false,
         /* allowMultipleOverrides= */ false,
+        /*setTrackNames*/ namesList,
         /* onClickListener= */ (dialog, which) -> {
           DefaultTrackSelector.ParametersBuilder builder = parameters.buildUpon();
           for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
@@ -203,7 +203,6 @@ public final class TrackSelectionDialog extends DialogFragment {
     this.titleId = titleId;
     this.onClickListener = onClickListener;
     this.onDismissListener = onDismissListener;
-    this.mNamesList = namesList;
     for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
       if (showTabForRenderer(mappedTrackInfo, i)) {
         int trackType = mappedTrackInfo.getRendererType(/* rendererIndex= */ i);
@@ -215,7 +214,8 @@ public final class TrackSelectionDialog extends DialogFragment {
             initialParameters.getRendererDisabled(/* rendererIndex= */ i),
             initialParameters.getSelectionOverride(/* rendererIndex= */ i, trackGroupArray),
             allowAdaptiveSelections,
-            allowMultipleOverrides);
+            allowMultipleOverrides,
+            namesList);
         tabFragments.put(i, tabFragment);
         tabTrackTypes.add(trackType);
       }
@@ -348,6 +348,7 @@ public final class TrackSelectionDialog extends DialogFragment {
     private int rendererIndex;
     private boolean allowAdaptiveSelections;
     private boolean allowMultipleOverrides;
+    private ArrayList<String> mNamesList;
 
     /* package */ boolean isDisabled;
     /* package */ List<SelectionOverride> overrides;
@@ -375,6 +376,26 @@ public final class TrackSelectionDialog extends DialogFragment {
       this.allowMultipleOverrides = allowMultipleOverrides;
     }
 
+    public void init(
+        MappedTrackInfo mappedTrackInfo,
+        int rendererIndex,
+        boolean initialIsDisabled,
+        @Nullable SelectionOverride initialOverride,
+        boolean allowAdaptiveSelections,
+        boolean allowMultipleOverrides,
+        ArrayList<String> namesList) {
+      this.mappedTrackInfo = mappedTrackInfo;
+      this.rendererIndex = rendererIndex;
+      this.isDisabled = initialIsDisabled;
+      this.overrides =
+          initialOverride == null
+              ? Collections.emptyList()
+              : Collections.singletonList(initialOverride);
+      this.allowAdaptiveSelections = allowAdaptiveSelections;
+      this.allowMultipleOverrides = allowMultipleOverrides;
+      this.mNamesList = namesList;
+    }
+
     @Nullable
     @Override
     public View onCreateView(
@@ -389,7 +410,7 @@ public final class TrackSelectionDialog extends DialogFragment {
       trackSelectionView.setAllowMultipleOverrides(allowMultipleOverrides);
       trackSelectionView.setAllowAdaptiveSelections(allowAdaptiveSelections);
       trackSelectionView.init(
-          mappedTrackInfo, rendererIndex, isDisabled, overrides, /* listener= */ this);
+          mappedTrackInfo, rendererIndex, isDisabled, overrides, /* listener= */ this, mNamesList);
       return rootView;
     }
 
