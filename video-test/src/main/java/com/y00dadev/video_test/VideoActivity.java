@@ -30,12 +30,8 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     private static final String EXTRA_STREAM_URL = "extra_stream_url";
 
     private PlayerView exoPlayerView;
-    private String hlsVideoUri = "http://usher.twitch.tv/api/channel/hls/pokimane.m3u8?player=twitchweb&&token={\"adblock\":false,\"authorization\":{\"forbidden\":false,\"reason\":\"\"},\"blackout_enabled\":false,\"channel\":\"pokimane\",\"channel_id\":44445592,\"chansub\":{\"restricted_bitrates\":[],\"view_until\":1924905600},\"ci_gb\":false,\"geoblock_reason\":\"\",\"device_id\":null,\"expires\":1582440587,\"extended_history_allowed\":false,\"game\":\"Counter-Strike:%20Global%20Offensive\",\"hide_ads\":false,\"https_required\":false,\"mature\":false,\"partner\":false,\"platform\":null,\"player_type\":null,\"private\":{\"allowed_to_view\":true},\"privileged\":false,\"server_ads\":true,\"show_ads\":true,\"subscriber\":false,\"turbo\":false,\"user_id\":null,\"user_ip\":\"206.189.180.4\",\"version\":2}&sig=28617da9f8368b0f9e9d5ab3bb4cc5dadee0b50c&allow_audio_only=true&allow_source=true&type=any&p=6\n";
     private SimpleExoPlayer player;
-    private ProgressBar progressBar;
-    int videoRendererIndex;
     private DefaultTrackSelector mDefaultTrackSelector;
-    private TrackGroupArray mTrackGroups;
     private boolean isShowingTrackSelectDialog;
     private DataSource.Factory mDataSourceFactory;
     private HlsMediaSource mHlsMediaSource;
@@ -48,9 +44,7 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         super.onCreate(savedInstanceState);
 
         HttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSourceFactory(Util.getUserAgent(this, "VideoTest"));
-
         mDataSourceFactory = new DefaultDataSourceFactory(this, httpDataSourceFactory);
-
         setContentView(R.layout.activity_video);
         exoPlayerView = findViewById(R.id.vdPlayerView);
         Button button = findViewById(R.id.trackSelectorButton);
@@ -60,24 +54,10 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
                 TrackSelectionDialog trackSelectionDialog =
                     TrackSelectionDialog.createForTrackSelector(
                         mDefaultTrackSelector,
-                        /* onDismissListener= */
                         dismissedDialog -> isShowingTrackSelectDialog = false, mNamesList);
                 trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
             }
         });
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (!isShowingTrackSelectDialog && TrackSelectionDialog.willHaveContent(mDefaultTrackSelector)) {
-//                    isShowingTrackSelectDialog = true;
-//                    TrackSelectionDialog trackSelectionDialog =
-//                            TrackSelectionDialog.createForTrackSelector(
-//                                    mDefaultTrackSelector,
-//                                    /* onDismissListener= */ dismissedDialog -> isShowingTrackSelectDialog = false);
-//                    trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
-//                }
-//            }
-//        });
         AspectRatioFrameLayout aspectRatioFrameLayout = findViewById(R.id.fixedFrameLayout);
         aspectRatioFrameLayout.setAspectRatio(16f/9f);
 
@@ -103,17 +83,13 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         new GetManifestTask(this).execute(url);
         Uri uri = Uri.parse(url);
         mHlsMediaSource = new HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
-
         TrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory();
         mDefaultTrackSelector = new DefaultTrackSelector(this, trackSelectionFactory);
         mDefaultTrackSelector.setParameters(mTrackSelectorParameters);
-
         player = new SimpleExoPlayer.Builder(this).setTrackSelector(mDefaultTrackSelector).build();
         player.setPlayWhenReady(true);
-
         exoPlayerView.setPlayer(player);
 //        exoPlayerView.setPlaybackPreparer((PlaybackPreparer) this);
-
         player.prepare(mHlsMediaSource);
 
     }
