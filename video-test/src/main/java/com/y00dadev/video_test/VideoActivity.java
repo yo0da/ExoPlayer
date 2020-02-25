@@ -55,7 +55,15 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         exoPlayerView = findViewById(R.id.vdPlayerView);
         Button button = findViewById(R.id.trackSelectorButton);
         button.setOnClickListener(view -> {
-
+            if (!isShowingTrackSelectDialog && TrackSelectionDialog.willHaveContent(mDefaultTrackSelector)) {
+                isShowingTrackSelectDialog = true;
+                TrackSelectionDialog trackSelectionDialog =
+                    TrackSelectionDialog.createForTrackSelector(
+                        mDefaultTrackSelector,
+                        /* onDismissListener= */
+                        dismissedDialog -> isShowingTrackSelectDialog = false, mNamesList);
+                trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
+            }
         });
 //        button.setOnClickListener(new View.OnClickListener() {
 //            @Override

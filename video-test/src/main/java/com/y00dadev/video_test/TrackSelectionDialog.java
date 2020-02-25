@@ -50,6 +50,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   private final ArrayList<Integer> tabTrackTypes;
 
   private int titleId;
+  private ArrayList<String> mNamesList;
   private DialogInterface.OnClickListener onClickListener;
   private DialogInterface.OnDismissListener onDismissListener;
 
@@ -118,6 +119,41 @@ public final class TrackSelectionDialog extends DialogFragment {
     return trackSelectionDialog;
   }
 
+  public static TrackSelectionDialog createForTrackSelector(
+      DefaultTrackSelector trackSelector, DialogInterface.OnDismissListener onDismissListener, ArrayList<String> namesList) {
+    MappedTrackInfo mappedTrackInfo =
+        Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo());
+    TrackSelectionDialog trackSelectionDialog = new TrackSelectionDialog();
+    DefaultTrackSelector.Parameters parameters = trackSelector.getParameters();
+    trackSelectionDialog.init(
+        /* titleId= */ R.string.track_selection_title,
+        mappedTrackInfo,
+        /* initialParameters = */ parameters,
+        /* allowAdaptiveSelections =*/ false,
+        /* allowMultipleOverrides= */ false,
+        /* onClickListener= */ (dialog, which) -> {
+          DefaultTrackSelector.ParametersBuilder builder = parameters.buildUpon();
+          for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+            builder
+                .clearSelectionOverrides(/* rendererIndex= */ i)
+                .setRendererDisabled(
+                    /* rendererIndex= */ i,
+                    trackSelectionDialog.getIsDisabled(/* rendererIndex= */ i));
+            List<SelectionOverride> overrides =
+                trackSelectionDialog.getOverrides(/* rendererIndex= */ i);
+            if (!overrides.isEmpty()) {
+              builder.setSelectionOverride(
+                  /* rendererIndex= */ i,
+                  mappedTrackInfo.getTrackGroups(/* rendererIndex= */ i),
+                  overrides.get(0));
+            }
+          }
+          trackSelector.setParameters(builder);
+        },
+        onDismissListener);
+    return trackSelectionDialog;
+  }
+
 
   public TrackSelectionDialog() {
     tabFragments = new SparseArray<>();
@@ -137,6 +173,37 @@ public final class TrackSelectionDialog extends DialogFragment {
     this.titleId = titleId;
     this.onClickListener = onClickListener;
     this.onDismissListener = onDismissListener;
+    for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+      if (showTabForRenderer(mappedTrackInfo, i)) {
+        int trackType = mappedTrackInfo.getRendererType(/* rendererIndex= */ i);
+        TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
+        TrackSelectionViewFragment tabFragment = new TrackSelectionViewFragment();
+        tabFragment.init(
+            mappedTrackInfo,
+            /* rendererIndex= */ i,
+            initialParameters.getRendererDisabled(/* rendererIndex= */ i),
+            initialParameters.getSelectionOverride(/* rendererIndex= */ i, trackGroupArray),
+            allowAdaptiveSelections,
+            allowMultipleOverrides);
+        tabFragments.put(i, tabFragment);
+        tabTrackTypes.add(trackType);
+      }
+    }
+  }
+
+  private void init(
+      int titleId,
+      MappedTrackInfo mappedTrackInfo,
+      DefaultTrackSelector.Parameters initialParameters,
+      boolean allowAdaptiveSelections,
+      boolean allowMultipleOverrides,
+      ArrayList<String> namesList,
+      DialogInterface.OnClickListener onClickListener,
+      DialogInterface.OnDismissListener onDismissListener) {
+    this.titleId = titleId;
+    this.onClickListener = onClickListener;
+    this.onDismissListener = onDismissListener;
+    this.mNamesList = namesList;
     for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
       if (showTabForRenderer(mappedTrackInfo, i)) {
         int trackType = mappedTrackInfo.getRendererType(/* rendererIndex= */ i);
