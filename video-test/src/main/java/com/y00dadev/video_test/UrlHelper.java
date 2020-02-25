@@ -38,7 +38,6 @@ public class UrlHelper {
 
         } catch (Exception e) {
             Log.d("Error", e.toString());
-            return result;
         } finally {
             if (scanner != null) {
                 scanner.close();
@@ -47,6 +46,23 @@ public class UrlHelper {
                 connection.disconnect();
             }
         }
+        return result;
+    }
+
+    public static InputStream urlToInputStream(URL url) {
+        HttpURLConnection connection = null;
+
+        try {
+            connection = openConnection(url);
+            return connection.getInputStream();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(connection != null) {
+                connection.disconnect();
+            }
+        }
+        return null;
     }
 
     public static HttpURLConnection openConnection(URL url) throws IOException {
