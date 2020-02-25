@@ -21,9 +21,11 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayList;
 
 
-public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventListener {
+public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventListener,
+    GetManifestTask.GetManifestResponse {
 
     private static final String EXTRA_STREAM_URL = "extra_stream_url";
 
@@ -38,6 +40,8 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     private DataSource.Factory mDataSourceFactory;
     private HlsMediaSource mHlsMediaSource;
     private DefaultTrackSelector.Parameters mTrackSelectorParameters;
+    private boolean namesFetched;
+    private ArrayList<String> mNamesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +55,7 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         exoPlayerView = findViewById(R.id.vdPlayerView);
         Button button = findViewById(R.id.trackSelectorButton);
         button.setOnClickListener(view -> {
-            mDefaultTrackSelector.getCurrentMappedTrackInfo();
+
         });
 //        button.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -88,6 +92,7 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     private void initializePlayer() {
         Intent intent = getIntent();
         String url = intent.getExtras().getString(EXTRA_STREAM_URL);
+        new GetManifestTask(this).execute(url);
         Uri uri = Uri.parse(url);
         mHlsMediaSource = new HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
 
@@ -103,5 +108,10 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
 
         player.prepare(mHlsMediaSource);
 
+    }
+
+    @Override
+    public void finishedGetManifestTask(ArrayList<String> namesList) {
+        mNamesList = namesList;
     }
 }

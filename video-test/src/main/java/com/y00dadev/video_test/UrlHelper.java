@@ -14,9 +14,10 @@ public class UrlHelper {
     private static final String ACCEPT = "Accept";
     private static final String ACCEPT_KEY = "application/vnd.twitchtv.v5+json";
     private static final String TWITCH_CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko";
+  private static HttpURLConnection mInputStreamConnection = null;
 
 
-    public static String urlToJson(URL url) {
+  public static String urlToJson(URL url) {
 
         HttpURLConnection connection = null;
         Scanner scanner = null;
@@ -50,19 +51,20 @@ public class UrlHelper {
     }
 
     public static InputStream urlToInputStream(URL url) {
-        HttpURLConnection connection = null;
-
         try {
-            connection = openConnection(url);
-            return connection.getInputStream();
+            mInputStreamConnection = openConnection(url);
+            return mInputStreamConnection.getInputStream();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if(connection != null) {
-                connection.disconnect();
-            }
         }
         return null;
+    }
+
+    public static void closeInputStreamConnection() throws IOException {
+      if(mInputStreamConnection != null) {
+        mInputStreamConnection.disconnect();
+        mInputStreamConnection = null;
+      }
     }
 
     public static HttpURLConnection openConnection(URL url) throws IOException {
