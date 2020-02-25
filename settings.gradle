@@ -23,6 +23,7 @@ include modulePrefix + 'demo-cast'
 include modulePrefix + 'demo-gl'
 include modulePrefix + 'demo-surface'
 include modulePrefix + 'playbacktests'
+include modulePrefix + 'video-test'
 project(modulePrefix + 'demo').projectDir = new File(rootDir, 'demos/main')
 project(modulePrefix + 'demo-cast').projectDir = new File(rootDir, 'demos/cast')
 project(modulePrefix + 'demo-gl').projectDir = new File(rootDir, 'demos/gl')
