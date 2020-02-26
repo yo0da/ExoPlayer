@@ -17,6 +17,7 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
-    <activity android:name=".VideoActivity"></activity>
+    <activity android:name=".VideoActivity"
+      android:configChanges="orientation|keyboardHidden|screenSize"></activity>
   </application>
 </manifest>

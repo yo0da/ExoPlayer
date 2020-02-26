@@ -26,8 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:focusable="true"
-            app:resize_mode="fixed_width"
-          app:controller_layout_id="@layout/custom_playback_controller"/>
+            app:resize_mode="fixed_width" />
 
     </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
 

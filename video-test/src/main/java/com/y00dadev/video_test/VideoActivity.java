@@ -1,12 +1,18 @@
 package com.y00dadev.video_test;
 
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -15,6 +21,7 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -38,6 +45,11 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     private DefaultTrackSelector.Parameters mTrackSelectorParameters;
     private boolean namesFetched;
     private ArrayList<String> mNamesList;
+
+    private FrameLayout mFullScreenButton;
+    private ImageView mFullScreenIcon;
+    private Dialog mFullScreenDialog;
+    private boolean mExoPlayerFullScreen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,10 +83,56 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         super.onStart();
         if(Util.SDK_INT > 23) {
             initializePlayer();
+            initFullscreenDialog();
+            initFullscreenButton();
             if(exoPlayerView != null) {
                 exoPlayerView.onResume();
             }
         }
+    }
+
+    private void initFullscreenDialog() {
+        mFullScreenDialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+            public void onBackPressed() {
+                if(mExoPlayerFullScreen) {
+                    closeFullScreenDialog();
+                }
+                super.onBackPressed();
+            }
+        };
+    }
+
+    private void initFullscreenButton() {
+        PlayerControlView controlView = exoPlayerView.findViewById(R.id.exo_controller);
+        mFullScreenIcon = controlView.findViewById(R.id.exo_fullscreen_icon);
+        mFullScreenButton = controlView.findViewById(R.id.exo_fullscreen_button);
+        mFullScreenButton.setOnClickListener(view -> {
+            if(!mExoPlayerFullScreen) {
+                openFullScreenDialog();
+            } else {
+                closeFullScreenDialog();
+            }
+        });
+
+    }
+
+    private void closeFullScreenDialog() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        ((ViewGroup) exoPlayerView.getParent()).removeView(exoPlayerView);
+        ((AspectRatioFrameLayout) findViewById(R.id.fixedFrameLayout)).addView(exoPlayerView);
+        mExoPlayerFullScreen = false;
+        mFullScreenDialog.dismiss();
+        mFullScreenIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_fullscreen_enter));
+    }
+
+    private void openFullScreenDialog() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        ((ViewGroup) exoPlayerView.getParent()).removeView(exoPlayerView);
+        mFullScreenDialog.addContentView(exoPlayerView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mFullScreenIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_fullscreen_exit));
+        mExoPlayerFullScreen = true;
+        mFullScreenDialog.show();
+
     }
 
     private void initializePlayer() {
