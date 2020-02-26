@@ -25,8 +25,7 @@
             android:id="@+id/vdPlayerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:focusable="true"
-            app:resize_mode="fixed_width" />
+            android:focusable="true" />
 
     </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
 

@@ -6,11 +6,15 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Layout;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -128,7 +132,27 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     private void openFullScreenDialog() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         ((ViewGroup) exoPlayerView.getParent()).removeView(exoPlayerView);
-        mFullScreenDialog.addContentView(exoPlayerView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+/*
+        AspectRatioFrameLayout aspectRatioFrameLayout = new AspectRatioFrameLayout(this);
+        aspectRatioFrameLayout.setAspectRatio(16f/9f);
+        exoPlayerView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        aspectRatioFrameLayout.addView(exoPlayerView);
+        FrameLayout frameLayout = new FrameLayout(this);
+        AspectRatioFrameLayout.LayoutParams aspectRatioFLParams = new AspectRatioFrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        aspectRatioFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
+        aspectRatioFrameLayout.setLayoutParams(aspectRatioFLParams);
+        frameLayout.addView(aspectRatioFrameLayout);
+*/
+        View customFullscreenDialogView = getLayoutInflater().inflate(R.layout.custom_fullscreen_dialog, null);
+        ViewGroup customFullscreenDialogViewGroup = (ViewGroup) customFullscreenDialogView;
+        View aspectRatioFrameLayoutView = customFullscreenDialogViewGroup.getChildAt(0);
+        AspectRatioFrameLayout aspectRatioFrameLayout = (AspectRatioFrameLayout) aspectRatioFrameLayoutView;
+        aspectRatioFrameLayout.setAspectRatio(16f/9f);
+        exoPlayerView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        aspectRatioFrameLayout.addView(exoPlayerView);
+        mFullScreenDialog.addContentView(customFullscreenDialogView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         mFullScreenIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_fullscreen_exit));
         mExoPlayerFullScreen = true;
         mFullScreenDialog.show();
