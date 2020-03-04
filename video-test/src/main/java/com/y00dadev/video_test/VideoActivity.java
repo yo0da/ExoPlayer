@@ -6,20 +6,15 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Layout;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -54,6 +49,11 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     private ImageView mFullScreenIcon;
     private Dialog mFullScreenDialog;
     private boolean mExoPlayerFullScreen = false;
+    private ImageView mPlayIcon;
+    private FrameLayout mPlayButton;
+    private boolean isPlaying = true;
+    private ImageView mQualitySelectorIcon;
+    private FrameLayout mQualitySelectorButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,10 +89,50 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
             initializePlayer();
             initFullscreenDialog();
             initFullscreenButton();
+            initControlButtons();
             if(exoPlayerView != null) {
                 exoPlayerView.onResume();
             }
         }
+    }
+
+    private void initControlButtons() {
+        PlayerControlView controlView = exoPlayerView.findViewById(R.id.exo_controller);
+        mPlayIcon = controlView.findViewById(R.id.exo_play_icon);
+        mPlayButton = controlView.findViewById(R.id.exo_play_button);
+        mPlayButton.setOnClickListener(view -> {
+            if(!isPlaying) {
+                onPlayerPlay();
+            } else {
+                onPlayerPause();
+            }
+        });
+        mQualitySelectorIcon = controlView.findViewById(R.id.exo_quality_icon);
+        mQualitySelectorButton = controlView.findViewById(R.id.exo_quality_button);
+        mQualitySelectorButton.setOnClickListener(view -> {
+            if (!isShowingTrackSelectDialog && TrackSelectionDialog.willHaveContent(mDefaultTrackSelector)) {
+                isShowingTrackSelectDialog = true;
+                TrackSelectionDialog trackSelectionDialog =
+                    TrackSelectionDialog.createForTrackSelector(
+                        mDefaultTrackSelector,
+                        dismissedDialog -> isShowingTrackSelectDialog = false, mNamesList);
+                trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
+            }
+        });
+
+    }
+
+    private void onPlayerPause() {
+        player.setPlayWhenReady(false);
+        mPlayIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_play));
+        isPlaying = false;
+    }
+
+    private void onPlayerPlay() {
+        player.seekTo( 0);
+        player.setPlayWhenReady(true);
+        mPlayIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_pause));
+        isPlaying = true;
     }
 
     private void initFullscreenDialog() {

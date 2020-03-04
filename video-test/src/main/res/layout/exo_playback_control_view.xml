@@ -18,37 +18,53 @@
   android:layout_height="match_parent"
   android:id="@+id/custom_exo_controller">
 
-  <ImageButton android:id="@id/exo_play"
-    android:layout_gravity="center"
-    style="@style/ExoMediaButton.Play"/>
+  <FrameLayout android:id="@+id/exo_play_button"
+    android:layout_width="42dp"
+    android:layout_height="42dp"
+    android:layout_gravity="center">
 
-  <ImageButton android:id="@id/exo_pause"
-    android:layout_gravity="center"
-    style="@style/ExoMediaButton.Pause"/>
+    <ImageView android:id="@+id/exo_play_icon"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:src="@drawable/exo_controls_pause"
+      android:layout_gravity="center"
+      android:scaleType="fitCenter"
+      android:adjustViewBounds="true"/>
+  </FrameLayout>
 
-  <LinearLayout android:layout_width="match_parent"
+  <RelativeLayout android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
-    android:orientation="horizontal"
     android:background="#CC000000">
 
-    <ImageButton android:id="@id/exo_rew"
-      style="@style/ExoMediaButton.Rewind"/>
-
     <FrameLayout android:id="@+id/exo_fullscreen_button"
-      android:layout_width="wrap_content"
-      android:layout_height="match_parent"
-      android:layout_gravity="end">
+      android:layout_width="42dp"
+      android:layout_height="42dp"
+      android:layout_alignParentEnd="true">
 
       <ImageView android:id="@+id/exo_fullscreen_icon"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/exo_icon_fullscreen_enter"
         android:layout_gravity="center"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"/>
-
     </FrameLayout>
-  </LinearLayout>
+
+      <FrameLayout android:id="@+id/exo_quality_button"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_toStartOf="@id/exo_fullscreen_button">
+
+        <ImageView android:id="@+id/exo_quality_icon"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:src="@drawable/exo_icon_vr"
+          android:layout_gravity="center"
+          android:scaleType="fitCenter"
+          android:adjustViewBounds="true"/>
+
+      </FrameLayout>
+  </RelativeLayout>
 
 </FrameLayout>
