@@ -35,8 +35,8 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
 
     private static final String EXTRA_STREAM_URL = "extra_stream_url";
 
-    private PlayerView exoPlayerView;
-    private SimpleExoPlayer player;
+    private PlayerView mExoPlayerView;
+    private SimpleExoPlayer mExoPlayer;
     private DefaultTrackSelector mDefaultTrackSelector;
     private boolean isShowingTrackSelectDialog;
     private DataSource.Factory mDataSourceFactory;
@@ -48,7 +48,7 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     private FrameLayout mFullScreenButton;
     private ImageView mFullScreenIcon;
     private Dialog mFullScreenDialog;
-    private boolean mExoPlayerFullScreen = false;
+    private boolean isFullScreen = false;
     private ImageView mPlayIcon;
     private FrameLayout mPlayButton;
     private boolean isPlaying = true;
@@ -62,7 +62,7 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         HttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSourceFactory(Util.getUserAgent(this, "VideoTest"));
         mDataSourceFactory = new DefaultDataSourceFactory(this, httpDataSourceFactory);
         setContentView(R.layout.activity_video);
-        exoPlayerView = findViewById(R.id.vdPlayerView);
+        mExoPlayerView = findViewById(R.id.vdPlayerView);
         Button button = findViewById(R.id.trackSelectorButton);
         button.setOnClickListener(view -> {
             if (!isShowingTrackSelectDialog && TrackSelectionDialog.willHaveContent(mDefaultTrackSelector)) {
@@ -90,14 +90,14 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
             initFullscreenDialog();
             initFullscreenButton();
             initControlButtons();
-            if(exoPlayerView != null) {
-                exoPlayerView.onResume();
+            if(mExoPlayerView != null) {
+                mExoPlayerView.onResume();
             }
         }
     }
 
     private void initControlButtons() {
-        PlayerControlView controlView = exoPlayerView.findViewById(R.id.exo_controller);
+        PlayerControlView controlView = mExoPlayerView.findViewById(R.id.exo_controller);
         mPlayIcon = controlView.findViewById(R.id.exo_play_icon);
         mPlayButton = controlView.findViewById(R.id.exo_play_button);
         mPlayButton.setOnClickListener(view -> {
@@ -123,14 +123,14 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     }
 
     private void onPlayerPause() {
-        player.setPlayWhenReady(false);
+        mExoPlayer.setPlayWhenReady(false);
         mPlayIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_play));
         isPlaying = false;
     }
 
     private void onPlayerPlay() {
-        player.seekTo( 0);
-        player.setPlayWhenReady(true);
+        mExoPlayer.seekTo( 0);
+        mExoPlayer.setPlayWhenReady(true);
         mPlayIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_pause));
         isPlaying = true;
     }
@@ -138,7 +138,7 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     private void initFullscreenDialog() {
         mFullScreenDialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
             public void onBackPressed() {
-                if(mExoPlayerFullScreen) {
+                if(isFullScreen) {
                     closeFullScreenDialog();
                 }
                 super.onBackPressed();
@@ -147,11 +147,11 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     }
 
     private void initFullscreenButton() {
-        PlayerControlView controlView = exoPlayerView.findViewById(R.id.exo_controller);
+        PlayerControlView controlView = mExoPlayerView.findViewById(R.id.exo_controller);
         mFullScreenIcon = controlView.findViewById(R.id.exo_fullscreen_icon);
         mFullScreenButton = controlView.findViewById(R.id.exo_fullscreen_button);
         mFullScreenButton.setOnClickListener(view -> {
-            if(!mExoPlayerFullScreen) {
+            if(!isFullScreen) {
                 openFullScreenDialog();
             } else {
                 closeFullScreenDialog();
@@ -162,16 +162,16 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
 
     private void closeFullScreenDialog() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        ((ViewGroup) exoPlayerView.getParent()).removeView(exoPlayerView);
-        ((AspectRatioFrameLayout) findViewById(R.id.fixedFrameLayout)).addView(exoPlayerView);
-        mExoPlayerFullScreen = false;
+        ((ViewGroup) mExoPlayerView.getParent()).removeView(mExoPlayerView);
+        ((AspectRatioFrameLayout) findViewById(R.id.fixedFrameLayout)).addView(mExoPlayerView);
+        isFullScreen = false;
         mFullScreenDialog.dismiss();
         mFullScreenIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_fullscreen_enter));
     }
 
     private void openFullScreenDialog() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        ((ViewGroup) exoPlayerView.getParent()).removeView(exoPlayerView);
+        ((ViewGroup) mExoPlayerView.getParent()).removeView(mExoPlayerView);
 
 /*
         AspectRatioFrameLayout aspectRatioFrameLayout = new AspectRatioFrameLayout(this);
@@ -190,11 +190,11 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         View aspectRatioFrameLayoutView = customFullscreenDialogViewGroup.getChildAt(0);
         AspectRatioFrameLayout aspectRatioFrameLayout = (AspectRatioFrameLayout) aspectRatioFrameLayoutView;
         aspectRatioFrameLayout.setAspectRatio(16f/9f);
-        exoPlayerView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        aspectRatioFrameLayout.addView(exoPlayerView);
+        mExoPlayerView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        aspectRatioFrameLayout.addView(mExoPlayerView);
         mFullScreenDialog.addContentView(customFullscreenDialogView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         mFullScreenIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_fullscreen_exit));
-        mExoPlayerFullScreen = true;
+        isFullScreen = true;
         mFullScreenDialog.show();
 
     }
@@ -208,11 +208,11 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         TrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory();
         mDefaultTrackSelector = new DefaultTrackSelector(this, trackSelectionFactory);
         mDefaultTrackSelector.setParameters(mTrackSelectorParameters);
-        player = new SimpleExoPlayer.Builder(this).setTrackSelector(mDefaultTrackSelector).build();
-        player.setPlayWhenReady(true);
-        exoPlayerView.setPlayer(player);
+        mExoPlayer = new SimpleExoPlayer.Builder(this).setTrackSelector(mDefaultTrackSelector).build();
+        mExoPlayer.setPlayWhenReady(true);
+        mExoPlayerView.setPlayer(mExoPlayer);
 //        exoPlayerView.setPlaybackPreparer((PlaybackPreparer) this);
-        player.prepare(mHlsMediaSource);
+        mExoPlayer.prepare(mHlsMediaSource);
 
     }
 
