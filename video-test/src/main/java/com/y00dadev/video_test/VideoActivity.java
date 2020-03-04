@@ -76,17 +76,6 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         mDataSourceFactory = new DefaultDataSourceFactory(this, httpDataSourceFactory);
         setContentView(R.layout.activity_video);
         mExoPlayerView = findViewById(R.id.vdPlayerView);
-        Button button = findViewById(R.id.trackSelectorButton);
-        button.setOnClickListener(view -> {
-            if (!isShowingTrackSelectDialog && TrackSelectionDialog.willHaveContent(mDefaultTrackSelector)) {
-                isShowingTrackSelectDialog = true;
-                TrackSelectionDialog trackSelectionDialog =
-                    TrackSelectionDialog.createForTrackSelector(
-                        mDefaultTrackSelector,
-                        dismissedDialog -> isShowingTrackSelectDialog = false, mNamesList);
-                trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
-            }
-        });
         AspectRatioFrameLayout aspectRatioFrameLayout = findViewById(R.id.fixedFrameLayout);
         aspectRatioFrameLayout.setAspectRatio(16f/9f);
 
