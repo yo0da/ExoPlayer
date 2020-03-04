@@ -51,12 +51,12 @@
         android:adjustViewBounds="true"/>
     </FrameLayout>
 
-      <FrameLayout android:id="@+id/exo_quality_button"
+    <FrameLayout android:id="@+id/exo_quality_button"
         android:layout_width="42dp"
         android:layout_height="42dp"
         android:layout_toStartOf="@id/exo_fullscreen_button">
 
-        <ImageView android:id="@+id/exo_quality_icon"
+      <ImageView android:id="@+id/exo_quality_icon"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:src="@drawable/exo_icon_vr"
@@ -65,6 +65,22 @@
           android:adjustViewBounds="true"/>
 
       </FrameLayout>
+
+    <FrameLayout android:id="@+id/exo_chat_button"
+      android:layout_width="42dp"
+      android:layout_height="42dp"
+      android:layout_toStartOf="@id/exo_quality_button">
+
+      <ImageView android:id="@+id/exo_chat_icon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/exo_icon_shuffle_on"
+        android:layout_gravity="center"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"/>
+    </FrameLayout>
+
+
   </RelativeLayout>
 
 </FrameLayout>

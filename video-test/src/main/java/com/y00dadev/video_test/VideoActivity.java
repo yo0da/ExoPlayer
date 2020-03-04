@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -35,6 +36,9 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
 
     private static final String EXTRA_STREAM_URL = "extra_stream_url";
 
+    private static final LinearLayout.LayoutParams FULL_SCREEN_LAYOUT_PARAMS = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+    private static final LinearLayout.LayoutParams CHAT_LAYOUT_PARAMS = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.7f);
+
     private PlayerView mExoPlayerView;
     private SimpleExoPlayer mExoPlayer;
     private DefaultTrackSelector mDefaultTrackSelector;
@@ -54,6 +58,15 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     private boolean isPlaying = true;
     private ImageView mQualitySelectorIcon;
     private FrameLayout mQualitySelectorButton;
+    private ImageView mChatIcon;
+    private FrameLayout mChatButton;
+    private boolean chatIsShowing = false;
+    private ViewGroup mCustomFullscreenDialogViewGroup;
+    private FrameLayout mCustomVideoContainer;
+    private AspectRatioFrameLayout mAspectRatioFrameLayout;
+    private FrameLayout mChatContainer;
+    private View mCustomFullscreenDialogView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +93,25 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         DefaultTrackSelector.ParametersBuilder builder = new DefaultTrackSelector.ParametersBuilder(this);
         mTrackSelectorParameters = builder.build();
 
+        initFullScreenLayout();
+
+    }
+
+    private void initFullScreenLayout() {
+
+        mCustomFullscreenDialogView = getLayoutInflater().inflate(R.layout.custom_fullscreen_dialog, null);
+        mCustomFullscreenDialogViewGroup = (ViewGroup) mCustomFullscreenDialogView;
+
+        View customVideoContainerView = mCustomFullscreenDialogViewGroup.getChildAt(0);
+        mCustomVideoContainer = (FrameLayout) customVideoContainerView;
+
+        ViewGroup customVideoContainerViewGroup = (ViewGroup) customVideoContainerView;
+        View aspectRatioFrameLayoutView = customVideoContainerViewGroup.getChildAt(0);
+        mAspectRatioFrameLayout = (AspectRatioFrameLayout) aspectRatioFrameLayoutView;
+        mAspectRatioFrameLayout.setAspectRatio(16f/9f);
+
+        View chatContainerView = mCustomFullscreenDialogViewGroup.getChildAt(1);
+        mChatContainer = (FrameLayout) chatContainerView;
     }
 
     @Override
@@ -119,7 +151,64 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
                 trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
             }
         });
+        mChatIcon = controlView.findViewById(R.id.exo_chat_icon);
+        mChatButton = controlView.findViewById(R.id.exo_chat_button);
+        mChatButton.setOnClickListener(view -> {
+            if(!chatIsShowing) {
+                openChat();
+            } else {
+                closeChat();
+            }
+        });
+        mChatButton.setVisibility(View.GONE);
+    }
 
+    private void closeChat() {
+/*
+        View customVideoContainerView = mCustomFullscreenDialogViewGroup.getChildAt(0);
+        FrameLayout customVideoContainer = (FrameLayout) customVideoContainerView;
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        customVideoContainer.setLayoutParams(layoutParams);
+
+        ViewGroup customVideoContainerViewGroup = (ViewGroup) customVideoContainerView;
+        View aspectRatioFrameLayoutView = customVideoContainerViewGroup.getChildAt(0);
+        AspectRatioFrameLayout aspectRatioFrameLayout = (AspectRatioFrameLayout) aspectRatioFrameLayoutView;
+        aspectRatioFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
+        aspectRatioFrameLayout.setAspectRatio(16f/9f);
+
+        View chatContainerView = mCustomFullscreenDialogViewGroup.getChildAt(1);
+        FrameLayout chatContainer = (FrameLayout) chatContainerView;
+ */
+        mCustomVideoContainer.setLayoutParams(FULL_SCREEN_LAYOUT_PARAMS);
+        mAspectRatioFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
+        mChatContainer.setVisibility(View.GONE);
+        chatIsShowing = false;
+        mChatIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_shuffle_on));
+    }
+
+    private void openChat() {
+        /*
+        View customVideoContainerView = mCustomFullscreenDialogViewGroup.getChildAt(0);
+        FrameLayout customVideoContainer = (FrameLayout) customVideoContainerView;
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.7f);
+        customVideoContainer.setLayoutParams(layoutParams);
+
+        ViewGroup customVideoContainerViewGroup = (ViewGroup) customVideoContainerView;
+        View aspectRatioFrameLayoutView = customVideoContainerViewGroup.getChildAt(0);
+        AspectRatioFrameLayout aspectRatioFrameLayout = (AspectRatioFrameLayout) aspectRatioFrameLayoutView;
+        aspectRatioFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
+        aspectRatioFrameLayout.setAspectRatio(16f/9f);
+
+        View chatContainerView = mCustomFullscreenDialogViewGroup.getChildAt(1);
+        FrameLayout chatContainer = (FrameLayout) chatContainerView;
+
+         */
+
+        mCustomVideoContainer.setLayoutParams(CHAT_LAYOUT_PARAMS);
+        mAspectRatioFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
+        mChatContainer.setVisibility(View.VISIBLE);
+        chatIsShowing = true;
+        mChatIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_shuffle_off));
     }
 
     private void onPlayerPause() {
@@ -144,6 +233,7 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
                 super.onBackPressed();
             }
         };
+        mFullScreenDialog.addContentView(mCustomFullscreenDialogView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     private void initFullscreenButton() {
@@ -162,9 +252,11 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
 
     private void closeFullScreenDialog() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        ((ViewGroup) mExoPlayerView.getParent()).removeView(mExoPlayerView);
+        mAspectRatioFrameLayout.removeView(mExoPlayerView);
         ((AspectRatioFrameLayout) findViewById(R.id.fixedFrameLayout)).addView(mExoPlayerView);
         isFullScreen = false;
+        mChatButton.setVisibility(View.GONE);
+//        ((ViewGroup) mCustomFullscreenDialogView.getParent()).removeView(mCustomFullscreenDialogView);
         mFullScreenDialog.dismiss();
         mFullScreenIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_fullscreen_enter));
     }
@@ -184,16 +276,23 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         aspectRatioFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
         aspectRatioFrameLayout.setLayoutParams(aspectRatioFLParams);
         frameLayout.addView(aspectRatioFrameLayout);
-*/
+
         View customFullscreenDialogView = getLayoutInflater().inflate(R.layout.custom_fullscreen_dialog, null);
-        ViewGroup customFullscreenDialogViewGroup = (ViewGroup) customFullscreenDialogView;
-        View aspectRatioFrameLayoutView = customFullscreenDialogViewGroup.getChildAt(0);
+        mCustomFullscreenDialogViewGroup = (ViewGroup) customFullscreenDialogView;
+        View customVideoContainerView = mCustomFullscreenDialogViewGroup.getChildAt(0);
+        FrameLayout customVideoContainer = (FrameLayout) customVideoContainerView;
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        customVideoContainer.setLayoutParams(layoutParams);
+        ViewGroup customVideoContainerViewGroup = (ViewGroup) customVideoContainerView;
+        View aspectRatioFrameLayoutView = customVideoContainerViewGroup.getChildAt(0);
         AspectRatioFrameLayout aspectRatioFrameLayout = (AspectRatioFrameLayout) aspectRatioFrameLayoutView;
         aspectRatioFrameLayout.setAspectRatio(16f/9f);
-        mExoPlayerView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        aspectRatioFrameLayout.addView(mExoPlayerView);
-        mFullScreenDialog.addContentView(customFullscreenDialogView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        */
+
+//        mExoPlayerView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mAspectRatioFrameLayout.addView(mExoPlayerView);
         mFullScreenIcon.setImageDrawable(ContextCompat.getDrawable(VideoActivity.this, R.drawable.exo_controls_fullscreen_exit));
+        mChatButton.setVisibility(View.VISIBLE);
         isFullScreen = true;
         mFullScreenDialog.show();
 
