@@ -72,7 +72,7 @@ public class TrackSelectionView extends LinearLayout {
   private TrackGroupArray trackGroups;
   private boolean isDisabled;
   @Nullable private TrackSelectionListener listener;
-  private ArrayList<String> mNamesList;
+  private ArrayList<Pair<String, String>> mNamesList;
 
   /** Creates a track selection view. */
   public TrackSelectionView(Context context) {
@@ -223,7 +223,7 @@ public class TrackSelectionView extends LinearLayout {
       boolean isDisabled,
       List<SelectionOverride> overrides,
       @Nullable TrackSelectionListener listener,
-      ArrayList<String> namesList) {
+      ArrayList<Pair<String, String>> namesList) {
     this.mappedTrackInfo = mappedTrackInfo;
     this.rendererIndex = rendererIndex;
     this.isDisabled = isDisabled;
@@ -292,7 +292,7 @@ public class TrackSelectionView extends LinearLayout {
             (CheckedTextView) inflater.inflate(trackViewLayoutId, this, false);
         trackView.setBackgroundResource(selectableItemBackgroundResourceId);
         if(mNamesList != null && !mNamesList.isEmpty()) {
-          trackView.setText(mNamesList.get(trackIndex));
+          trackView.setText(mNamesList.get(trackIndex).first);
         } else {
           trackView.setText(trackNameProvider.getTrackName(group.getFormat(trackIndex)));
         }

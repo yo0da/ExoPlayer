@@ -19,6 +19,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Pair;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -119,7 +120,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   }
 
   public static TrackSelectionDialog createForTrackSelector(
-      DefaultTrackSelector trackSelector, DialogInterface.OnDismissListener onDismissListener, ArrayList<String> namesList) {
+      DefaultTrackSelector trackSelector, DialogInterface.OnDismissListener onDismissListener, ArrayList<Pair<String, String>> namesList) {
     MappedTrackInfo mappedTrackInfo =
         Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo());
     TrackSelectionDialog trackSelectionDialog = new TrackSelectionDialog();
@@ -197,7 +198,7 @@ public final class TrackSelectionDialog extends DialogFragment {
       DefaultTrackSelector.Parameters initialParameters,
       boolean allowAdaptiveSelections,
       boolean allowMultipleOverrides,
-      ArrayList<String> namesList,
+      ArrayList<Pair<String, String>> namesList,
       DialogInterface.OnClickListener onClickListener,
       DialogInterface.OnDismissListener onDismissListener) {
     this.titleId = titleId;
@@ -348,7 +349,7 @@ public final class TrackSelectionDialog extends DialogFragment {
     private int rendererIndex;
     private boolean allowAdaptiveSelections;
     private boolean allowMultipleOverrides;
-    private ArrayList<String> mNamesList;
+    private ArrayList<Pair<String, String>> mNamesList;
 
     /* package */ boolean isDisabled;
     /* package */ List<SelectionOverride> overrides;
@@ -383,7 +384,7 @@ public final class TrackSelectionDialog extends DialogFragment {
         @Nullable SelectionOverride initialOverride,
         boolean allowAdaptiveSelections,
         boolean allowMultipleOverrides,
-        ArrayList<String> namesList) {
+        ArrayList<Pair<String, String>> namesList) {
       this.mappedTrackInfo = mappedTrackInfo;
       this.rendererIndex = rendererIndex;
       this.isDisabled = initialIsDisabled;
