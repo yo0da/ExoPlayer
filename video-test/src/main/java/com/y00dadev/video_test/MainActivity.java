@@ -9,7 +9,7 @@ public class MainActivity extends AppCompatActivity implements GetUrlTask.AsyncR
 
     private static final String EXTRA_STREAM_URL = "extra_stream_url";
     private Intent mIntent;
-    private String mChannelName = "myth";
+    private String mChannelName = "summit1g";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

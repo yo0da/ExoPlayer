@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
@@ -151,6 +152,21 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
             }
         });
         mChatButton.setVisibility(View.GONE);
+        Button testButton = findViewById(R.id.test_button);
+        testButton.setOnClickListener(view -> {
+            /*Disable video renderer*/
+            int indexOfVideoRenderer = -1;
+            for (int i = 0; i < mExoPlayer.getRendererCount(); i++) {
+                if (mExoPlayer.getRendererType(i) == C.TRACK_TYPE_VIDEO) {
+                    indexOfVideoRenderer = i;
+                    break;
+                }
+            }
+            DefaultTrackSelector.ParametersBuilder params = new DefaultTrackSelector.ParametersBuilder(getBaseContext());
+            params.setRendererDisabled(indexOfVideoRenderer, true);
+            mDefaultTrackSelector.setParameters(params);
+        });
+
     }
 
     private void closeChat() {

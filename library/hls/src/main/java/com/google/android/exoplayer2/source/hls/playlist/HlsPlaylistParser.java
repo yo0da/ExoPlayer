@@ -302,6 +302,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           sessionKeyDrmInitData.add(new DrmInitData(scheme, schemeData));
         }
       } else if (line.startsWith(TAG_STREAM_INF)) {
+        if(parseOptionalStringAttr(line, REGEX_VIDEO, variableDefinitions).equals("audio_only")) {
+          line = line.replace("VIDEO", "AUDIO");
+        }
         noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
         int bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
         // TODO: Plumb this into Format.
@@ -393,10 +396,15 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
     for (int i = 0; i < mediaTags.size(); i++) {
       line = mediaTags.get(i);
+      Variant variant1 = variants.get(i);
       String groupId = parseStringAttr(line, REGEX_GROUP_ID, variableDefinitions);
+      if(groupId.equals("audio_only")) {
+        line = line.replace("VIDEO", "AUDIO");
+      }
       String name = parseStringAttr(line, REGEX_NAME, variableDefinitions);
-      String referenceUri = parseOptionalStringAttr(line, REGEX_URI, variableDefinitions);
-      Uri uri = referenceUri == null ? null : UriUtil.resolveToUri(baseUri, referenceUri);
+//      String referenceUri = parseOptionalStringAttr(line, REGEX_URI, variableDefinitions);
+//      Uri uri = referenceUri == null ? null : UriUtil.resolveToUri(baseUri, referenceUri);
+      Uri uri = variant1.url;
       String language = parseOptionalStringAttr(line, REGEX_LANGUAGE, variableDefinitions);
       @C.SelectionFlags int selectionFlags = parseSelectionFlags(line);
       @C.RoleFlags int roleFlags = parseRoleFlags(line, variableDefinitions);
