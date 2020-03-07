@@ -291,7 +291,8 @@ public final class TrackSelectionDialog extends DialogFragment {
       return false;
     }
     int trackType = mappedTrackInfo.getRendererType(rendererIndex);
-    return isSupportedTrackType(trackType);
+    return trackType == C.TRACK_TYPE_VIDEO;
+//    return isSupportedTrackType(trackType);
   }
 
   private static boolean isSupportedTrackType(int trackType) {
